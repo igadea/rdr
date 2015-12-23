@@ -1,6 +1,6 @@
 
 # rdr
-Simulate your multi-server production environment on your Mac, with multiple projects handling traffic on the same ports simultaneously (e.g., 80, 443).
+Simulate multi-server production environments on your Mac, with multiple projects handling traffic on the same ports simultaneously (e.g., 80, 443).
 
 ## Install it.
 `npm install -g rdr`
