@@ -1,6 +1,6 @@
 {
   "name": "rdr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Redirect traffic addressed to any host at any port to any IP and port.",
   "bin": "./rdr",
   "main": "./rdr",
