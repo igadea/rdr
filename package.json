@@ -2,7 +2,7 @@
   "name": "rdr",
   "version": "0.0.1",
   "description": "Redirect traffic addressed to any host at any port to any IP and port.",
-  "main": "bin/rdr",
+  "main": "rdr",
   "repository": {
     "type": "git",
     "url": "https://github.com/igadea/rdr"
