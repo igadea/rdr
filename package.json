@@ -1,0 +1,23 @@
+{
+  "name": "rdr",
+  "version": "0.0.1",
+  "description": "Redirect traffic addressed to any host at any port to any IP and port.",
+  "main": "bin/rdr",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/igadea/rdr"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "development environment",
+    "port forwarding",
+    "domain forwarding",
+    "etc/hosts",
+    "pfctl",
+    "local development"
+  ],
+  "author": "Jeff McMahan <jeffrey.lee.mcmahan@gmail.com> (http://jeffmcmahan.info)",
+  "license": "MIT"
+}

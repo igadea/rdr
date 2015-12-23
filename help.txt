@@ -1,0 +1,14 @@
+  rdr allows you to torward any hostname at any port to any IP at
+  any port on your Mac.
+
+    rdr [ <host>:<ip> to <ip>:<port> ]
+        [ . | on | off | list ]
+        --help
+        --version
+
+  Usually, you'll want the <ip>:<port> argument to be 127.0.0.1:<port>,
+  so try something like: "rdr domain.com:80 to 127.0.0.1:3005"
+
+  HOW IT WORKS:
+    rdr will create and apply /etc/hosts rules to to point the domain
+    to your IP, and pfctrl configuration rules to forward your ports.
