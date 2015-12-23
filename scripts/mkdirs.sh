@@ -4,11 +4,6 @@ if [ ! -d /usr/local/lib/rdr/backup ]
     sudo mkdir /usr/local/lib/rdr/backup
 fi
 
-if [ ! -f /usr/local/lib/rdr/backup/pf.conf ]
-  then
-    sudo touch /usr/local/lib/rdr/backup/pf.conf
-fi
-
 if [ ! -f /usr/local/lib/rdr/backup/hosts ]
   then
     sudo touch /usr/local/lib/rdr/backup/hosts
