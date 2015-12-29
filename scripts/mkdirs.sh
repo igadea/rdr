@@ -1,28 +1,28 @@
 # Backup dir to hold a copy of /etc/hosts
-if [ ! -d /usr/local/lib/rdr/backup ]
+if [ ! -d /usr/local/lib/node_modules/rdr/backup ]
   then
-    sudo mkdir /usr/local/lib/rdr/backup
+    sudo mkdir /usr/local/lib/node_modules/rdr/backup
 fi
 
-if [ ! -f /usr/local/lib/rdr/backup/hosts ]
+if [ ! -f /usr/local/lib/node_modules/rdr/backup/hosts ]
   then
-    sudo touch /usr/local/lib/rdr/backup/hosts
+    sudo touch /usr/local/lib/node_modules/rdr/backup/hosts
 fi
 
 # Configuration dir to hold anchors and hosts
-if [ ! -d /usr/local/lib/rdr/configuration ]
+if [ ! -d /usr/local/lib/node_modules/rdr/configuration ]
   then
-    sudo mkdir /usr/local/lib/rdr/configuration
+    sudo mkdir /usr/local/lib/node_modules/rdr/configuration
 fi
 
-if [ ! -f /usr/local/lib/rdr/configuration/anchors.json ]
+if [ ! -f /usr/local/lib/node_modules/rdr/configuration/anchors.json ]
   then
-    sudo touch /usr/local/lib/rdr/configuration/anchors.json
+    sudo touch /usr/local/lib/node_modules/rdr/configuration/anchors.json
 fi
 
-if [ ! -f /usr/local/lib/rdr/configuration/hosts.json ]
+if [ ! -f /usr/local/lib/node_modules/rdr/configuration/hosts.json ]
   then
-    sudo touch /usr/local/lib/rdr/configuration/hosts.json
+    sudo touch /usr/local/lib/node_modules/rdr/configuration/hosts.json
 fi
 
 # Anchor file
