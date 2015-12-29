@@ -5,6 +5,7 @@ var fs = require('fs')
 var bash = require('child_process').execSync
 var spaces = require('./spaces')
 var pfctlStatus = require('./pfctl-status')
+var DIR = '/usr/local/lib/node_modules/rdr'
 
 var COMMENT = ''+
   '##\n'+
@@ -24,7 +25,7 @@ var COMMENT = ''+
  */
 function activateHosts() {
   var hosts = JSON.parse(
-    fs.readFileSync('/usr/local/lib/rdr/configuration/hosts.json', 'utf8') || '[]'
+    fs.readFileSync(DIR + '/configuration/hosts.json', 'utf8') || '[]'
   )
   if (hosts.length) {
     hosts = COMMENT + hosts.map(function (line) {
@@ -59,7 +60,7 @@ function addPfConfRule(rule) {
  */
 function activateAnchors() {
   var anchors = JSON.parse(
-    fs.readFileSync('/usr/local/lib/rdr/configuration/anchors.json', 'utf8') || '[]'
+    fs.readFileSync(DIR + '/configuration/anchors.json', 'utf8') || '[]'
   )
   if (anchors.length) {
     anchors.forEach(function (rule) {
@@ -74,9 +75,9 @@ module.exports = function () {
   activateHosts()
   activateAnchors()
   if (pfctlStatus.enabled()) {
-    bash('sudo pfctl -f /usr/local/lib/rdr/pf.conf &>/dev/null')
+    bash('sudo pfctl -f ' + DIR + '/pf.conf &>/dev/null')
   } else {
-    bash('sudo pfctl -ef /usr/local/lib/rdr/pf.conf &>/dev/null')
+    bash('sudo pfctl -ef ' + DIR + '/pf.conf &>/dev/null')
   }
   process.stdout.write(
     '\n  rdr active\n\n'

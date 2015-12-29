@@ -4,7 +4,8 @@
 var bash = require('child_process').execSync
 var fs = require('fs')
 var spaces = require('./spaces')
-var HOSTS_JSON = '/usr/local/lib/rdr/configuration/hosts.json'
+var DIR = '/usr/local/lib/node_modules/rdr'
+var HOSTS_JSON = DIR + '/configuration/hosts.json'
 
 /**
  * Parses the existing hosts file into an object array.

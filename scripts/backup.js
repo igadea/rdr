@@ -2,7 +2,8 @@
 'use strict'
 
 var fs = require('fs')
-var HOSTS_BACKUP = '/usr/local/lib/rdr/backup/hosts'
+var DIR = '/usr/local/lib/node_modules/rdr'
+var HOSTS_BACKUP = DIR + '/backup/hosts'
 
 module.exports = function () {
   var hosts = fs.readFileSync('/etc/hosts', 'utf8')

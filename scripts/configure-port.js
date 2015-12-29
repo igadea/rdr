@@ -3,6 +3,7 @@
 
 var bash = require('child_process').execSync
 var fs = require('fs')
+var DIR = '/usr/local/lib/node_modules/rdr'
 
 module.exports = function (srcIp, rule) {
 
@@ -16,7 +17,7 @@ module.exports = function (srcIp, rule) {
   try {
     anchorFile = JSON.parse(
       fs.readFileSync(
-        '/usr/local/lib/rdr/configuration/anchors.json', 'utf8'
+        DIR + '/configuration/anchors.json', 'utf8'
       ) || '[]'
     )
   } catch(err) {
@@ -26,7 +27,7 @@ module.exports = function (srcIp, rule) {
   if (anchorFile.indexOf(rule) === -1) {
     anchorFile.push(rule)
     fs.writeFileSync(
-      '/usr/local/lib/rdr/configuration/anchors.json',
+      DIR + '/configuration/anchors.json',
       JSON.stringify(anchorFile, null, '  ')
     )
   }
