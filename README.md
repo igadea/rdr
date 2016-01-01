@@ -3,9 +3,11 @@
 Simulate multi-server production environments on your Mac, with multiple projects handling traffic on the same ports simultaneously (e.g., 80, 443).
 
 ## Install it.
-`npm install -g rdr`
+You'll want to install rdr globally, so you can use the executable from the command line (it would be of little use as a local project dependency).
 
-N.b.: rdr is not tested on versions of OSX prior to 10.10 Yosemite.
+`sudo npm install rdr -g`
+
+*N.b.:* rdr is not tested on versions of OSX prior to 10.10 Yosemite.
 
 ## Use it.
 ### Configure  `.rdr`
@@ -23,6 +25,8 @@ api.project.com:80 to 127.0.0.1:3001
 * `rdr on` to enable forwarding
 * `rdr off` to disable forwarding
 * `rdr list` to inspect the current configuration
+* `rdr reset` to wipe out the current configuration
+* `rdr restore` to overwrite `/etc/hosts` with `~/.etchosts.bak`
 * `rdr <host>:<port-x> to <ip>:<port-y>` to create a new forwarding rule
 * `rdr --version`
 * `rdr --help`
