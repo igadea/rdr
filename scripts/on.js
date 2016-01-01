@@ -3,83 +3,69 @@
 
 var fs = require('fs')
 var bash = require('child_process').execSync
-var spaces = require('./spaces')
 var pfctlStatus = require('./pfctl-status')
-var DIR = '/usr/local/lib/node_modules/rdr'
-
-var COMMENT = ''+
-  '##\n'+
-  '# Host Database\n'+
-  '#\n'+
-  '# localhost is used to configure the loopback interface\n'+
-  '# when the system is booting.  Do not change this entry.\n'+
-  '#\n'+
-  '# rdr: This file is being managed by rdr. You can still edit it,\n'+
-  '# but don\'t remove this comment. To reset it, use "rdr reset".\n'+
-  '##\n'
+var CMN = require('./common')
 
 /**
- *
+ * Copies the configured hosts file to /etc/hosts
  * @function
  * @return {}
  */
 function activateHosts() {
-  var hosts = JSON.parse(
-    fs.readFileSync(DIR + '/configuration/hosts.json', 'utf8') || '[]'
-  )
-  if (hosts.length) {
-    hosts = COMMENT + hosts.map(function (line) {
-      return line.dst + spaces(20 - line.dst.length) + line.src
-    }).join('\n')
+  var hosts = fs.readFileSync(CMN.FILE.HOSTS, 'utf8')
+  var confHosts = fs.readFileSync(CMN.FILE.HOSTS_DB, 'utf8')
+  if (confHosts.length && hosts.length) {
     fs.writeFileSync('/etc/hosts', hosts)
-  } else {
-    process.stdout.write('\n  No hosts configured.\n')
+    return true
   }
 }
 
+
 /**
- *
+ * Adds a single port forwarding rule to ANCHORS.
  * @function
  * @param {}
  * @return {}
  */
 function addPfConfRule(rule) {
-  var ANCHOR = '/etc/pf.anchors/rdr'
-  var rules = fs.readFileSync(ANCHOR, 'utf8')
+  var rules = fs.readFileSync(CMN.FILE.ANCHORS, 'utf8')
   if (rules.indexOf(rule) === -1) {
     rules += rule + '\n'
-    // process.stdout.write(rules)
-    fs.writeFileSync(ANCHOR, rules)
+    fs.writeFileSync(CMN.FILE.ANCHORS, rules)
   }
 }
 
+
 /**
- *
+ * Activates the rules stored in the ANCHORS_DB.
  * @function
  * @return {}
  */
 function activateAnchors() {
-  var anchors = JSON.parse(
-    fs.readFileSync(DIR + '/configuration/anchors.json', 'utf8') || '[]'
-  )
+  var anchors = CMN.safeJSON(fs.readFileSync(CMN.FILE.ANCHORS_DB, 'utf8'), [])
   if (anchors.length) {
     anchors.forEach(function (rule) {
       addPfConfRule(rule)
     })
-  } else {
-    process.stdout.write('\n  No ports configured.\n\n')
+    return true
   }
 }
 
+
 module.exports = function () {
-  activateHosts()
-  activateAnchors()
-  if (pfctlStatus.enabled()) {
-    bash('sudo pfctl -f ' + DIR + '/pf.conf &>/dev/null')
-  } else {
-    bash('sudo pfctl -ef ' + DIR + '/pf.conf &>/dev/null')
+  if (CMN.isRoot()) {
+    var hostsConfigured = activateHosts()
+    var portsConfigured = activateAnchors()
+    if (hostsConfigured && portsConfigured) {
+      if (pfctlStatus.enabled()) {
+        bash('sudo pfctl -f ' + CMN.FILE.PFCONF + ' &>/dev/null')
+      } else {
+        bash('sudo pfctl -ef ' + CMN.FILE.PFCONF + ' &>/dev/null')
+      }
+    } else if (!hostsConfigured && !portsConfigured) {
+      CMN.stdout('No forwarding rules have been setup.')
+    } else {
+      process.stderr.write('\n  Configuration error.\n\n')
+    }
   }
-  process.stdout.write(
-    '\n  rdr active\n\n'
-  )
 }

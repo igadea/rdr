@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 'use strict'
 
-var bash = require('child_process').execSync
 var fs = require('fs')
-var spaces = require('./spaces')
-var DIR = '/usr/local/lib/node_modules/rdr'
-var HOSTS_JSON = DIR + '/configuration/hosts.json'
+var CMN = require('./common')
 
 /**
  * Parses the existing hosts file into an object array.
@@ -14,17 +11,22 @@ var HOSTS_JSON = DIR + '/configuration/hosts.json'
  * @return {Array}
  */
 function parseHosts(file) {
-  var parsed = {}
-  return file.split('\n').filter(function (line) {
-    return line && !/^\s*#/.test(line)
+  return file.split('\n').map(function (line) {
+    return line.replace(/^(.*?)#.*?$/m, '$1')
+  }).filter(function (line) {
+    return !!line
   }).map(function (line) {
-    line = line.split(/\s+/)
+    line = line.replace(/\s/, '@@@').split('@@@')
+    var src = line[1].split(/\s+/g).filter(function (dstStr) {
+      return !!dstStr
+    })
     return {
-      src: line[1],
+      src: src,
       dst: line[0]
     }
   })
 }
+
 
 /**
  * Searches the existing hosts file to determine what IP to use to forward
@@ -33,7 +35,7 @@ function parseHosts(file) {
  * @param {Array} hosts
  * @return {}
  */
-function findIp(hosts, src) {
+function findIp(hosts) {
 
   var ip
     , finalOctet
@@ -47,15 +49,55 @@ function findIp(hosts, src) {
   return ip
 }
 
+
+/**
+ * Returns an IP is there is already a fwd for it; null otherwise.
+ * @function
+ * @param {Array} hosts
+ * @param {String} host
+ * @return {String|Null}
+ */
 function getExistingFwdIp(hosts, host) {
   var ip = null
   hosts.forEach(function (entry) {
-    if (entry.src.replace(/\s/g, '') === host) {
+    if (entry.src.indexOf(host) !== -1) {
       ip = entry.dst
     }
   })
   return ip
 }
+
+
+/**
+ * Clears material from the rdr comment block in the hosts file.
+ * @function
+ * @param {String} etcHosts
+ * @return {String}
+ */
+function clearRDRblock(etcHosts) {
+  if (CMN.REG.HOSTS_BLOCK.test(etcHosts)) {
+    etcHosts.replace(CMN.REG.HOSTS_BLOCK, '$1\n$2')
+  } else {
+    etcHosts += CMN.STRING.BLOCK_OPEN + '\n' + CMN.STRING.BLOCK_CLOSE
+  }
+  return etcHosts
+}
+
+
+/**
+ * Adds lines to the hosts file, inside the rdr comment block.
+ * @function
+ * @param {String} etcHosts
+ * @param {Object} confHosts
+ * @return {String}
+ */
+function addLines(etcHosts, confHosts) {
+  var lines = confHosts.map(function (line) {
+    return line.dst + '  ' + line.src
+  })
+  return etcHosts.replace(CMN.REG.HOSTS_BLOCK, '$1\n' + lines.join('\n') + '\n$2')
+}
+
 
 /**
  * Adds a line to /etc/hosts for a given domain, smartly determining which IP to
@@ -66,27 +108,27 @@ function getExistingFwdIp(hosts, host) {
  */
 module.exports = function (host) {
 
-  var write
-    , hosts
-    , newline
+  var confHosts   // {Array}
+    , etcHosts    // {String}
+    , _etcHosts   // {Array}
+    , ip
 
-  // Safely retrieve or create hosts.json.
-  hosts = fs.readFileSync(HOSTS_JSON, 'utf8')
-  if (!hosts.length) {
-    hosts = parseHosts(fs.readFileSync('/etc/hosts', 'utf8'))
-  } else {
-    hosts = JSON.parse(hosts)
-  }
-
-  var ip = getExistingFwdIp(hosts, host)
+  etcHosts = fs.readFileSync(CMN.FILE.HOSTS, 'utf8')
+  if (!etcHosts) etcHosts = fs.readFileSync('/etc/hosts', 'utf8')
+  confHosts = JSON.parse((fs.readFileSync(CMN.FILE.HOSTS_DB, 'utf8') || '[]'))
+  _etcHosts = parseHosts(etcHosts)
+  ip = getExistingFwdIp(_etcHosts, host)
+  if (!ip) ip = getExistingFwdIp(confHosts, host)
   if (ip) return ip
+  ip = findIp(confHosts)
 
-  // Create the new entry and insert it.
-  newline = {
-    src: host + spaces(20-host.length),
-    dst: findIp(hosts, host)
-  }
-  hosts.splice(1, 0, newline)
-  fs.writeFileSync(HOSTS_JSON, JSON.stringify(hosts, null, '  '))
-  return newline.dst
+  // Update HOSTS_DB
+  confHosts.push({dst:ip, src:[host]})
+  fs.writeFileSync(CMN.FILE.HOSTS_DB, JSON.stringify(confHosts))
+
+  // Update HOSTS
+  etcHosts = clearRDRblock(etcHosts)
+  etcHosts = addLines(etcHosts, confHosts)
+  fs.writeFileSync(CMN.FILE.HOSTS, etcHosts)
+  return ip
 }

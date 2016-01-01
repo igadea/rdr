@@ -2,25 +2,21 @@
 'use strict'
 
 var fs = require('fs')
-var DIR = '/usr/local/lib/node_modules/rdr'
-var HOSTS_BACKUP = DIR + '/backup/hosts'
+var CMN = require('./common')
 
 module.exports = function () {
   var hosts = fs.readFileSync('/etc/hosts', 'utf8')
-  if (!fs.readFileSync(HOSTS_BACKUP, 'utf8').length) {
-    var write = fs.writeFileSync(HOSTS_BACKUP, hosts)
+  try {
+    fs.readFileSync(CMN.FILE.BACKUP, 'utf8')
+  } catch (e) {
+    var write = fs.writeFileSync(CMN.FILE.BACKUP, hosts)
     if (write instanceof Error) {
       process.stderr.write(
         '\nERROR - Could not backup /etc/hosts/:\n\n'+
         '\n' + write.stack + '\n\n'
       )
     } else {
-      process.stdout.write(
-        '\n'+
-        '  Backed up hosts file to: ' + HOSTS_BACKUP + '\n'+
-        '  You can use "rdr reset" to restore both.\n\n'
-
-      )
+      CMN.stdout('Backed up hosts file to: ' + CMN.FILE.BACKUP)
     }
   }
 }
