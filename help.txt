@@ -2,12 +2,15 @@
   any port on your Mac.
 
     rdr [ <host>:<ip> to <ip>:<port> ]
-        [ . | on | off | list ]
+        [ . | on | off | list | reset | restore ]
         --help
         --version
 
   Usually, you'll want the <ip>:<port> argument to be 127.0.0.1:<port>,
   so try something like: "rdr domain.com:80 to 127.0.0.1:3005"
+
+  Administrator privileges are required for everything other than the
+  list, --help, and --version commands/flags.
 
   HOW IT WORKS:
     rdr will create and apply /etc/hosts rules to to point the domain
