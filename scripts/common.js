@@ -64,7 +64,6 @@ module.exports = {
     PREFIX: PREFIX,
     PFCONF: PFCONF,
     BACKUP: BACKUP,
-    HOSTS: HOSTS,
     HOSTS_DB: HOSTS_DB,
     ANCHORS: ANCHORS,
     ANCHORS_DB: ANCHORS_DB,
