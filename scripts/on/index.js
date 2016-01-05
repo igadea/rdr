@@ -7,7 +7,6 @@ var off = require('../off')
 var pfctlStatus = require('../pfctl-status')
 var anchorsOn = require('./anchors')
 var hostsOn = require('./hosts')
-var dumpCache = require('../dump-cache')
 
 /**
  * Activates the current configuration.
@@ -25,7 +24,6 @@ module.exports = function () {
       } else {
         bash('pfctl -F all -f ' + CMN.FILE.PFCONF)
       }
-      dumpCache()
     } else if (!hostsConfigured && !portsConfigured) {
       CMN.stdout('No forwarding rules have been setup.')
     } else {
