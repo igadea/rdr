@@ -20,11 +20,6 @@ if [ ! -f /usr/local/lib/node_modules/rdr/configuration/anchors.json ]
     sudo touch /usr/local/lib/node_modules/rdr/configuration/anchors.json
 fi
 
-if [ ! -f /usr/local/lib/node_modules/rdr/configuration/hosts ]
-  then
-    sudo touch /usr/local/lib/node_modules/rdr/configuration/hosts
-fi
-
 if [ ! -f /usr/local/lib/node_modules/rdr/configuration/hosts.json ]
   then
     sudo touch /usr/local/lib/node_modules/rdr/configuration/hosts.json
