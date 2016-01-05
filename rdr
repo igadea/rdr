@@ -4,33 +4,12 @@
 var fs = require('fs')
 var readline = require('readline')
 var bash = require('child_process').execSync
-
 require('./scripts/map-args')()
-var on = require('./scripts/on')
 var CMN = require('./scripts/common')
+var on = require('./scripts/on')
 var off = require('./scripts/off')
-var backup = require('./scripts/backup')
-var parseRule = require('./scripts/parse-rule')
-var configureHost = require('./scripts/configure-host')
-var configurePort = require('./scripts/configure-port')
-
-
-/**
- * Parses the arguments and passes them to the functions that do the config work.
- * @function
- * @param {String} $1
- * @param {String} $3
- * @return {}
- */
-function newRule($1, $3) {
-  if (CMN.isRoot()) {
-    backup()
-    var rule = parseRule($1, $3)
-    var mappedIp = configureHost(rule.srcHost)
-    configurePort(mappedIp, rule)
-  }
-}
-
+var configure = require('./scripts/configure')
+var reset = require('./scripts/configure/reset')
 
 /**
  * Reports everything that's being forwarded.
@@ -64,52 +43,6 @@ function list() {
   }
 }
 
-
-/**
- * Loads settings from ./.rdr file.
- * @function
- * @return {}
- */
-function loadConf() {
-  if (CMN.isRoot()) {
-    var conf
-    backup()
-    try {
-      conf = fs.readFileSync('./.rdr', 'utf8')
-        .split('\n')
-        .filter(function (line) {
-          return line.length && !/^\s*#/.test(line)
-        })
-    } catch (err) {
-      process.stderr.write(err.stack)
-      process.exit(1)
-    }
-    off()
-    conf.forEach(function (rule) {
-      rule = rule.split(/\s+to\s+/)
-      newRule(rule[0], rule[1])
-    })
-    on()
-  }
-}
-
-
-/**
- * Empties configuration files and turns off.
- * @function
- * @return {}
- */
-function reset() {
-  if (CMN.isRoot()) {
-    fs.writeFileSync(CMN.FILE.ANCHORS, '')
-    fs.writeFileSync(CMN.FILE.ANCHORS_DB, '[]')
-    fs.writeFileSync(CMN.FILE.HOSTS, '')
-    fs.writeFileSync(CMN.FILE.HOSTS_DB, '[]')
-    off()
-  }
-}
-
-
 function restore() {
   if (CMN.isRoot()) {
     var backup = fs.readFileSync(CMN.FILE.BACKUP, 'utf8') || '(Empty)'
@@ -117,7 +50,6 @@ function restore() {
      '\n  This operation will overwrite /etc/hosts with the content of' +
      '\n  ~/etchosts.bak. Examine the file (printed immediately above)'+
      '\n  before proceeding.'
-
     var rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
@@ -140,7 +72,7 @@ function restore() {
 
 // RUN =========================================================================
 bash('sh ' + CMN.FILE.PREFIX + '/scripts/mkdirs.sh')
-if (global.$1 === '.') loadConf()
+if (global.$1 === '.') configure()
 else if (global.$1 === 'on') on()
 else if (global.$1 === 'off') off()
 else if (global.$1 === 'list') list()
@@ -148,7 +80,9 @@ else if (global.$1 === 'reset') reset()
 else if (global.$1 === 'restore') restore()
 else if (global.$1 === '--help') CMN.stdout(CMN.STRING.HELP)
 else if (global.$1 === '--version') process.stderr.write(CMN.STRING.VERSION)
-else if (global.$1 && global.$3) newRule(global.$1, global.$3)
+else if (global.$1 && global.$3) {
+  configure([global.$1 +' '+ global.$2 +' '+ global.$3])
+}
 else CMN.stdout(CMN.STRING.HELP)
 CMN.stdout.write()
 // =============================================================================
