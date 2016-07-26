@@ -1,6 +1,6 @@
 {
   "name": "rdr",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Redirect traffic addressed to any host at any port to any IP and port.",
   "os": ["darwin, linux"],
   "bin": "./rdr",
